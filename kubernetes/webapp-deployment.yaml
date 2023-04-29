@@ -13,19 +13,27 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: itachi47/webapp:v2
+        image: itachi47/webapp:latest
+        volumeMounts:
+        - name: nginx-vol
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         ports:
         - containerPort: 80
-        env:
-        - name: BASE_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: mongo-config
-              key: BACKEND_BASE_PATH
+      volumes:
+      - name: nginx-vol
+        configMap:
+          name: nginx-config
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+            
+      
 
 ---
 
@@ -41,4 +49,3 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 80
-      nodePort: 30080
